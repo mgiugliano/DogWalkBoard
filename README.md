@@ -3,11 +3,11 @@
 A small, self-hosted board for a group of neighbors who each walk a dog and
 want to know — in something close to real time — whether the others are out
 right now, roughly where, and where they're headed, so everyone can route
-around each other.
+around each other (or perhaps join each other to play together).
 
 No accounts, no database, no build step. Static HTML/JS plus a couple of
 small PHP endpoints, deployable to any ordinary shared PHP hosting over plain
-FTP.
+FTP. No shell access needed. 
 
 ## Features
 
