@@ -1,0 +1,568 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --text: #1c1c1c;
+  --text-muted: #666666;
+  --border: #dddddd;
+  --active: #2e7d32;
+  --active-bg: #e6f4ea;
+  --inactive: #9e9e9e;
+  --inactive-bg: #eeeeee;
+  --accent: #1565c0;
+  --accent-bg: #e3f0fc;
+  --accent-border: #b3d4f5;
+  --danger-bg: #fdecea;
+  --danger-border: #f5c6c0;
+  --danger-text: #c62828;
+  --radius: 12px;
+  --gap: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #14161a;
+    --surface: #1e2126;
+    --text: #f0f0f0;
+    --text-muted: #a0a0a0;
+    --border: #33363c;
+    --active: #66bb6a;
+    --active-bg: #1b3a1e;
+    --inactive: #9aa0a6;
+    --inactive-bg: #2a2d33;
+    --accent: #64b5f6;
+    --accent-bg: #17293a;
+    --accent-border: #2c4a63;
+    --danger-bg: #3a2020;
+    --danger-border: #5c2e2e;
+    --danger-text: #ef9a9a;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #14161a;
+  --surface: #1e2126;
+  --text: #f0f0f0;
+  --text-muted: #a0a0a0;
+  --border: #33363c;
+  --active: #66bb6a;
+  --active-bg: #1b3a1e;
+  --inactive: #9aa0a6;
+  --inactive-bg: #2a2d33;
+  --accent: #64b5f6;
+  --accent-bg: #17293a;
+  --accent-border: #2c4a63;
+  --danger-bg: #3a2020;
+  --danger-border: #5c2e2e;
+  --danger-text: #ef9a9a;
+}
+
+/* Le tile OpenStreetMap sono sempre "chiare" alla fonte: in tema scuro le invertiamo
+   con un filtro CSS, lasciando marker/percorsi (in un altro pannello) con i loro colori veri. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+  }
+}
+:root[data-theme="dark"] .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.4;
+  padding-bottom: 48px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+header.app-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px var(--gap) 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  /* Sopra ai controlli di Leaflet (zoom, attribuzione: z-index:1000 di default)
+     e sopra alla sticky-bar, altrimenti la mappa che scorre sotto potrebbe coprirli. */
+  z-index: 1002;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+header.app-header .header-text {
+  min-width: 0;
+}
+
+header.app-header h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+}
+
+header.app-header .subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.proximity-alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border-bottom: 2px solid var(--danger-border);
+  padding: 14px var(--gap);
+  font-weight: 600;
+  text-align: center;
+}
+
+.proximity-alert-dismiss {
+  flex: none;
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--danger-border);
+  background: transparent;
+  color: var(--danger-text);
+}
+
+/* Avviso informativo (non di pericolo): qualcuno ha appena iniziato o finito
+   una passeggiata. Colore diverso dall'avviso di prossimità apposta, per non
+   confondere "attenzione, siete vicini" con "giusto per saperlo". */
+.activity-alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent-border);
+  padding: 14px var(--gap);
+  font-weight: 600;
+  text-align: center;
+}
+
+.activity-alert-dismiss {
+  flex: none;
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--accent-border);
+  background: transparent;
+  color: var(--accent);
+}
+
+/* Posizione non aggiornata da più di MCA_POSITION_STALE_MS: il marker sulla
+   mappa lampeggia e la riga "Aggiornato" si colora di rosso — sullo stesso
+   elemento, con effetti diversi a seconda che sia un marker o del testo. */
+@keyframes mca-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
+}
+
+.mca-position-stale {
+  animation: mca-blink 1s steps(1) infinite;
+}
+
+p.mca-position-stale.mca-updated-line {
+  animation: none;
+  color: var(--danger-text);
+  font-weight: 700;
+}
+
+p.mca-position-stale.mca-updated-line::before {
+  content: "⚠️ ";
+}
+
+/* Avviso "sei stato via": a differenza degli altri banner, si chiude solo con
+   un tocco esplicito (niente scomparsa automatica) — deve essere impossibile
+   non notarlo, dato che segnala qualcosa già successo mentre non guardavi. */
+.away-alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 2000;
+}
+
+.away-alert-box {
+  background: var(--surface);
+  border: 2px solid var(--danger-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 360px;
+  text-align: center;
+}
+
+.away-alert-text {
+  margin: 0 0 16px;
+  color: var(--danger-text);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+#lang-toggle-btn {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sticky-bar {
+  position: sticky;
+  top: 76px;
+  /* Sopra ai controlli di Leaflet (zoom, attribuzione: z-index:1000 di default),
+     altrimenti la mappa che scorre sotto la barra la coprirebbe visivamente. */
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px var(--gap);
+  margin-bottom: var(--gap);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.icon-btn {
+  margin-left: auto;
+  flex: none;
+  width: 52px;
+  padding: 0;
+  font-size: 22px;
+}
+
+.theme-toggle {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+main {
+  padding: var(--gap);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+nav.app-nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+nav.app-nav a {
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 14px;
+  min-height: 48px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--gap);
+  margin-bottom: var(--gap);
+  scroll-margin-top: 160px; /* non farsi coprire da header + barra sticky con i link #ancora */
+}
+
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-chip.active {
+  background: var(--active-bg);
+  color: var(--active);
+}
+
+.status-chip.inactive {
+  background: var(--inactive-bg);
+  color: var(--text-muted);
+}
+
+.status-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.walk-duration {
+  font-weight: 500;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Passeggiata più lunga di MCA_LONG_WALK_WARNING_MS: colore d'avviso, per
+   accorgersi facilmente se "fuori ora" è rimasto acceso per dimenticanza. */
+.status-chip.long-walk {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.meta-line {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 8px 0 0;
+}
+
+.map-box {
+  height: 320px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+}
+
+.slot-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.slot-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.slot-list li:last-child {
+  border-bottom: none;
+}
+
+.slot-list.empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+button, .btn {
+  font: inherit;
+  min-height: 52px;
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+button.primary, .btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+button.danger, .btn.danger {
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.btn-row > * {
+  flex: 1 1 auto;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.toggle-row.compact {
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.toggle-row.compact label[for] {
+  margin: 0;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 56px;
+  height: 32px;
+  flex: none;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch .track {
+  position: absolute;
+  inset: 0;
+  background: var(--inactive);
+  border-radius: 999px;
+  transition: background 0.15s;
+}
+
+.switch .track::before {
+  content: "";
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+
+.switch input:checked + .track {
+  background: var(--active);
+}
+
+.switch input:checked + .track::before {
+  transform: translateX(24px);
+}
+
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.slot-row input[type="time"] {
+  font: inherit;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  min-height: 44px;
+  flex: 1 1 auto;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.slot-row button {
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
+.notice {
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.notice.error {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.notice.success {
+  background: var(--active-bg);
+  color: var(--active);
+}
+
+.error-page {
+  text-align: center;
+  padding: 48px 20px;
+}
+
+footer.app-footer {
+  text-align: center;
+  padding: 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}

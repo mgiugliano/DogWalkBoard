@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <script>(function(){var t=localStorage.getItem('mca_theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}})();</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Live Board</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css"
+    integrity="sha256-LhJiGL8zdnwmqQgxK45GXouxZnYhMrDdor4wyLxKxSg=" crossorigin="">
+  <link rel="stylesheet" href="assets/css/style.css?v=1">
+</head>
+<body data-i18n-title="board.title">
+  <header class="app-header">
+    <div class="header-text">
+      <h1 data-i18n="board.h1">Live board</h1>
+      <p class="subtitle" data-i18n="board.subtitle"></p>
+    </div>
+    <div class="header-buttons">
+      <button id="lang-toggle-btn" class="theme-toggle" type="button" aria-label="Change language">EN</button>
+      <button id="theme-toggle-btn" class="theme-toggle" type="button" data-i18n-attr="aria-label:theme.toggleAriaLabel">🌙</button>
+    </div>
+  </header>
+  <div id="activity-alert" class="activity-alert" style="display:none">
+    <span class="activity-alert-text"></span>
+    <button type="button" class="activity-alert-dismiss" data-i18n-attr="aria-label:common.close">✕</button>
+  </div>
+  <div id="proximity-alert" class="proximity-alert" style="display:none">
+    <span class="proximity-alert-text"></span>
+    <button type="button" class="proximity-alert-dismiss" data-i18n-attr="aria-label:common.close">✕</button>
+  </div>
+  <main>
+    <div class="card">
+      <div id="map" class="map-box"></div>
+      <p class="meta-line" id="polled-at" data-i18n="common.lastCheckPending"></p>
+    </div>
+    <div id="users">
+      <p data-i18n="common.loading"></p>
+    </div>
+    <nav class="app-nav">
+      <a href="schedules.html" data-i18n="board.navSchedules"></a>
+      <a href="index.html" data-i18n="board.navHome"></a>
+    </nav>
+  </main>
+  <footer class="app-footer" data-i18n="board.footer"></footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"
+    integrity="sha256-Z27Vo2NYi3eklYwgKkhgysoiRMJNOaBP+o4eF586vZ8=" crossorigin=""></script>
+  <script src="assets/js/config.js?v=1"></script>
+  <script src="assets/js/i18n.js?v=1"></script>
+  <script src="assets/js/common.js?v=1"></script>
+  <script src="assets/js/board.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <script>(function(){var t=localStorage.getItem('mca_theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}})();</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>My Status</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css"
+    integrity="sha256-LhJiGL8zdnwmqQgxK45GXouxZnYhMrDdor4wyLxKxSg=" crossorigin="">
+  <link rel="stylesheet" href="assets/css/style.css?v=1">
+</head>
+<body data-i18n-title="control.title">
+  <header class="app-header">
+    <div class="header-text">
+      <h1 data-i18n="control.h1">My status</h1>
+      <p class="subtitle" id="greeting" data-i18n="control.greetingDefault">Hi</p>
+    </div>
+    <div class="header-buttons">
+      <button id="lang-toggle-btn" class="theme-toggle" type="button" aria-label="Change language">EN</button>
+      <button id="theme-toggle-btn" class="theme-toggle" type="button" data-i18n-attr="aria-label:theme.toggleAriaLabel">🌙</button>
+    </div>
+  </header>
+  <div id="activity-alert" class="activity-alert" style="display:none">
+    <span class="activity-alert-text"></span>
+    <button type="button" class="activity-alert-dismiss" data-i18n-attr="aria-label:common.close">✕</button>
+  </div>
+  <div id="proximity-alert" class="proximity-alert" style="display:none">
+    <span class="proximity-alert-text"></span>
+    <button type="button" class="proximity-alert-dismiss" data-i18n-attr="aria-label:common.close">✕</button>
+  </div>
+  <div id="away-alert" class="away-alert-overlay" style="display:none">
+    <div class="away-alert-box">
+      <p id="away-alert-text" class="away-alert-text"></p>
+      <button type="button" id="away-alert-ok-btn" class="primary" data-i18n="control.awayOk"></button>
+    </div>
+  </div>
+  <main>
+    <div id="auth-error" class="error-page" style="display:none">
+      <h2 data-i18n="control.authErrorTitle"></h2>
+      <p data-i18n="control.authErrorBody"></p>
+    </div>
+
+    <div id="main-content" style="display:none">
+      <div class="sticky-bar">
+        <div class="toggle-row compact">
+          <label for="active-toggle" data-i18n="control.activeLabel"></label>
+          <label class="switch">
+            <input type="checkbox" id="active-toggle">
+            <span class="track"></span>
+          </label>
+        </div>
+        <div class="toggle-row compact">
+          <label for="gps-toggle" data-i18n="control.gpsLabel"></label>
+          <label class="switch">
+            <input type="checkbox" id="gps-toggle" disabled>
+            <span class="track"></span>
+          </label>
+        </div>
+        <button id="center-map-btn" type="button" class="icon-btn" data-i18n-attr="aria-label:control.centerMapAriaLabel">🎯</button>
+      </div>
+      <div id="active-status" class="notice" style="display:none"></div>
+
+      <div class="card">
+        <h2 data-i18n="control.boardHeading"></h2>
+        <div id="map" class="map-box"></div>
+        <p class="meta-line" id="board-polled-at" data-i18n="common.lastCheckPending"></p>
+        <div id="status-cards"></div>
+      </div>
+
+      <div class="card" id="posizione">
+        <h2 data-i18n="control.positionHeading"></h2>
+        <p class="meta-line" data-i18n="control.positionHint"></p>
+        <div class="btn-row">
+          <button id="route-mode-btn" data-i18n="control.newRoute"></button>
+        </div>
+        <div id="route-controls" class="btn-row" style="display:none">
+          <button id="route-undo-btn" data-i18n="control.undoPoint"></button>
+          <button id="route-clear-btn" class="danger" data-i18n="control.clearRoute"></button>
+          <button id="route-save-btn" class="primary" data-i18n="control.saveRoute"></button>
+        </div>
+        <div id="map-notice" class="notice" style="display:none"></div>
+      </div>
+
+      <div class="card" id="orari">
+        <h2 data-i18n="control.scheduleHeading"></h2>
+        <p class="meta-line" data-i18n="control.scheduleHint"></p>
+        <div id="slots"></div>
+        <div class="btn-row">
+          <button id="add-slot-btn" data-i18n="control.addSlot"></button>
+        </div>
+        <div class="btn-row">
+          <button id="save-slots-btn" class="primary" data-i18n="control.saveSlots"></button>
+        </div>
+        <div id="slots-notice" class="notice" style="display:none"></div>
+      </div>
+
+      <nav class="app-nav">
+        <a href="schedules.html" data-i18n="control.navSchedulesAll"></a>
+        <a href="board.html" data-i18n="control.navBoardReadonly"></a>
+      </nav>
+    </div>
+  </main>
+  <footer class="app-footer" data-i18n="control.footer"></footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"
+    integrity="sha256-Z27Vo2NYi3eklYwgKkhgysoiRMJNOaBP+o4eF586vZ8=" crossorigin=""></script>
+  <script src="assets/js/config.js?v=1"></script>
+  <script src="assets/js/i18n.js?v=1"></script>
+  <script src="assets/js/common.js?v=1"></script>
+  <script src="assets/js/control.js?v=1"></script>
+</body>
+</html>
