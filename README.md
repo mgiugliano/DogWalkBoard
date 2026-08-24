@@ -9,6 +9,29 @@ No accounts, no database, no build step. Static HTML/JS plus a couple of
 small PHP endpoints, deployable to any ordinary shared PHP hosting over plain
 FTP. No shell access needed. 
 
+## Screenshots
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/home.jpg" alt="Home page: pick who you are, or open a read-only view"></td>
+<td width="50%"><img src="docs/screenshots/board.jpg" alt="Live board: everyone currently out, their position and route"></td>
+</tr>
+<tr>
+<td align="center"><em>Home — pick who you are</em></td>
+<td align="center"><em>Live board — everyone's live status</em></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/control.jpg" alt="A participant's own control page, with the board, map, and route tools"></td>
+<td width="50%"><img src="docs/screenshots/schedules.jpg" alt="Usual schedule page listing everyone's typical time windows"></td>
+</tr>
+<tr>
+<td align="center"><em>Your own page — status, GPS, planned route</em></td>
+<td align="center"><em>Usual schedule — everyone's typical windows</em></td>
+</tr>
+</table>
+
+*(Sample data from a demo deployment — not a real neighborhood.)*
+
 ## Features
 
 - **Live status board** — see who's out right now, their live position and
