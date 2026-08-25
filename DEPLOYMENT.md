@@ -3,10 +3,10 @@
 ## Prerequisites
 
 - **PHP 7.4+** on your hosting (no database, no special extensions — this is
-  what nearly every shared hosting plan already runs).
-- **PHP CLI locally** to run the one-time setup wizard (`php -v` to check you
-  have it; installing PHP locally, e.g. `brew install php` on macOS, takes a
-  minute if you don't).
+  what nearly every shared hosting plan already runs). Nothing PHP-related is
+  needed on your own machine — the setup wizard is plain bash.
+- **bash locally** to run the one-time setup wizard. Already present on macOS
+  and Linux; on Windows, use Git Bash (comes with Git for Windows) or WSL.
 - **HTTPS** on your hosting. Most shared hosts offer a free Let's Encrypt/
   AutoSSL certificate, enabled with one click from the control panel (e.g.
   cPanel) — no SSH needed. **Without HTTPS, GPS sharing doesn't work at
@@ -20,13 +20,13 @@
 ## 1. Run the setup wizard
 
 ```sh
-php bin/setup.php
+bash bin/setup.sh
 ```
 
 It asks for your neighborhood's map center (with a hint on finding
 coordinates via OpenStreetMap), zoom level, pan radius, GPS privacy radius,
-timezone, default UI language, and the list of participants (id, display
-name, hex color — at least 2). It then writes:
+timezone, and the list of participants (id, display name, and a color picked
+by number from a palette — at least 2 participants). It then writes:
 
 - `webroot/assets/js/config.js`
 - `webroot/api/lib/config.php`
@@ -43,7 +43,7 @@ deployment's configuration.
 Everything the app needs lives in one folder: `webroot/`. Its **contents**
 (not the folder itself) go into your hosting's public folder (often called
 `public_html`, `htdocs`, or `www`) — nothing should be uploaded above or
-outside it. `bin/setup.php` and the project's other top-level files
+outside it. `bin/setup.sh` and the project's other top-level files
 (README, this file, `.gitignore`) never need to be uploaded.
 
 ## 3. Confirm `data/` is writable
@@ -88,7 +88,7 @@ design. To change the roster after the initial setup:
 ## 6. Adjusting the map area or planned-route lifetime later
 
 Map center/zoom/pan radius/GPS privacy radius live in
-`webroot/assets/js/config.js` (regenerate with `php bin/setup.php --force`,
+`webroot/assets/js/config.js` (regenerate with `bash bin/setup.sh --force`,
 or edit the file directly — it's plain JS constants). How long a saved
 route stays drawn on the board before it's treated as stale
 (`MCA_ROUTE_TTL_MS`, default 30 minutes) is a constant near the top of
@@ -115,7 +115,7 @@ unpredictable caching delay.
 
 - **Blank page / PHP error after upload**: check your host's PHP error log;
   the most common cause is `webroot/api/lib/config.php` missing (re-run
-  `bin/setup.php` and re-upload) or a PHP version below 7.4.
+  `bin/setup.sh` and re-upload) or a PHP version below 7.4.
 - **"Richiesta fallita"/"Request failed" when toggling status**: `webroot/data/`
   isn't writable by PHP — check permissions.
 - **GPS toggle does nothing / no browser permission prompt**: the site isn't
